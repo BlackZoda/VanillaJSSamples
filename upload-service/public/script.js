@@ -42,7 +42,7 @@ btnUpload.addEventListener("click", (e) => {
       });
 
       const percentage = Math.round(((chunkId + 1) * 100) / chunkCount);
-      outputBar.style = `width: calc(${percentage}% - 4px)`;
+      outputBar.style = `width: calc(${percentage}% - 12px)`;
     }
   };
 
