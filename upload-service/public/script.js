@@ -23,12 +23,16 @@ btnUpload.addEventListener("click", (e) => {
     console.log(`File name: ${fileName}`);
     console.log(`File ID: ${fileId}`);
 
-    for (let chunkId = 0; chunkId < chunkCount; chunkId++) {
-      const low = chunkId * chunkSize;
+    // TODO: Add file type processing and user feedback
+
+    for (let chunkNo = 0; chunkNo < chunkCount; chunkNo++) {
+      const low = chunkNo * chunkSize;
       const high = low + chunkSize;
       const chunk = loadEvent.target.result.slice(low, high);
+      const chunkId = uuidv4();
 
       // TODO: Try out parallelization
+      // TODO: Move custom headers to query strings
       await fetch(endpoint, {
         method: "POST",
         headers: {
@@ -37,11 +41,12 @@ btnUpload.addEventListener("click", (e) => {
           // Custom headers
           "file-name": fileName,
           "file-id": fileId,
+          "chunk-id": chunkId,
         },
         body: chunk,
       });
 
-      const percentage = Math.round(((chunkId + 1) * 100) / chunkCount);
+      const percentage = Math.round(((chunkNo + 1) * 100) / chunkCount);
       outputBar.style = `width: calc(${percentage}% - 12px)`;
     }
   };

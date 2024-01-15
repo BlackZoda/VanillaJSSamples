@@ -4,7 +4,7 @@ const path = require("node:path");
 
 const server = http.createServer((req, res) => {
   if (req.url === "/upload") {
-    // TODO: Add validation
+    // TODO: Add file type validation
     // TODO: Add idempotency
 
     res.writeHead(200, {
@@ -15,11 +15,12 @@ const server = http.createServer((req, res) => {
     // TODO: Change custom headers to query string or in body
     const fileName = req.headers["file-name"];
     const fileId = req.headers["file-id"];
+    const chunkId = req.headers["chunk-id"];
 
     // TODO: Write file to blob storage
     req.on("data", (chunk) => {
       fs.appendFileSync(`${fileId}_${fileName}`, chunk);
-      console.log(`Chunk length received: ${chunk.length}`);
+      console.log(`Chunk ${chunkId} received. Length: ${chunk.length}`);
     });
 
     res.end("Working!");
