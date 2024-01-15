@@ -3,6 +3,9 @@ const fs = require("node:fs");
 const path = require("node:path");
 
 const uploadedChunks = new Set();
+const uploadDirectory = path.join(__dirname, "/upload");
+const publicDirectory = path.join(__dirname, "/public");
+const PORT = 8080;
 
 const server = http.createServer((req, res) => {
   if (req.url === "/upload") {
@@ -22,7 +25,7 @@ const server = http.createServer((req, res) => {
       // TODO: Write file to blob storage
       req.on("data", (chunk) => {
         fs.appendFileSync(
-          path.join(__dirname, "/uploads", `${fileId}_${fileName}`),
+          path.join(uploadDirectory, `${fileId}_${fileName}`),
           chunk,
         );
         console.log(`Chunk ${chunkId} received. Length: ${chunk.length}`);
@@ -31,6 +34,7 @@ const server = http.createServer((req, res) => {
       });
     } else {
       console.log(`Chunk ${chunkId} already processed. Skipping.`);
+      // TODO: Handle error gracefully
     }
 
     res.end("File uploaded.");
@@ -64,7 +68,10 @@ const server = http.createServer((req, res) => {
   }
 });
 
-const PORT = 8080;
+process.on("SIGINT", () => {
+  console.log("Server shutting down gracefully...");
+  process.exit();
+});
 
 server.listen(PORT, () => {
   console.log(`Server running at http://localhost:${PORT}/`);
