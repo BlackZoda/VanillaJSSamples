@@ -2,6 +2,20 @@
   margin: 0;
   padding: 0;
   list-style: none;
+  box-sizing: border-box;
+}
+
+:root {
+  --bg-darkblue: #223;
+  --bg-lightblue: #557;
+  --bg-darkbgreen: #233;
+  --bg-lightgreen: #577;
+  --bg-linear-gradient: linear-gradient(30deg, #223, #557);
+  --black: #112;
+  --white: mintcream;
+  --primary-accent: hotpink;
+  --secondary-accent: lawngreen;
+  --border-radius: 10px;
 }
 
 body {
@@ -11,8 +25,8 @@ body {
   justify-content: center;
   align-items: center;
   font-size: 10px;
-  background: linear-gradient(30deg, #223, #557);
-  color: mintcream;
+  background: var(--bg-linear-gradient);
+  color: var(--white);
 }
 
 main {
@@ -36,19 +50,19 @@ label {
 }
 
 input {
-  border-radius: 10px;
-  background-color: #112;
-  color: mintcream;
+  border-radius: var(--border-radius);
+  background-color: var(--black);
+  color: var(--white);
   border-style: none;
-  height: 30px;
+  height: 40px;
   cursor: pointer;
   padding: 5px;
 }
 
 input::file-selector-button {
-  border-radius: 5px;
-  background-color: #557;
-  color: mintcream;
+  border-radius: calc(var(--border-radius) / 2);
+  background-color: var(--bg-darkblue);
+  color: var(--primary-dark);
   border-style: none;
   height: 30px;
   cursor: pointer;
@@ -58,29 +72,29 @@ input::file-selector-button {
 
 input[type="button"]:hover,
 input::file-selector-button:hover {
-  background-color: #446;
-  color: hotpink;
+  background-color: var(--bg-lightblue);
+  color: var(--primary-accent);
 }
 
 input[type="button"] {
   height: 40px;
-  background-color: #557;
+  background-color: var(--bg-darkblue);
 }
 
 .meter {
   display: relative;
   height: 30px;
   width: 100%;
-  background-color: #466;
+  background-color: var(--bg-darkbgreen);
   margin: 10px 0;
-  border-radius: 10px;
+  border-radius: var(--border-radius);
 }
 
 .meter > span {
   display: block;
   height: calc(100% - 4px);
   margin: 2px;
-  background-color: hotpink;
+  background-color: var(--primary-accent);
   border-radius: 10px;
   text-align: center;
   font-size: 0.6rem;
