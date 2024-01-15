@@ -2,10 +2,11 @@ const http = require("node:http");
 const fs = require("node:fs");
 const path = require("node:path");
 
+const uploadedChunks = new Set();
+
 const server = http.createServer((req, res) => {
   if (req.url === "/upload") {
     // TODO: Add file type validation
-    // TODO: Add idempotency
 
     res.writeHead(200, {
       "Content-Type": "text/plain",
@@ -17,13 +18,22 @@ const server = http.createServer((req, res) => {
     const fileId = req.headers["file-id"];
     const chunkId = req.headers["chunk-id"];
 
-    // TODO: Write file to blob storage
-    req.on("data", (chunk) => {
-      fs.appendFileSync(`${fileId}_${fileName}`, chunk);
-      console.log(`Chunk ${chunkId} received. Length: ${chunk.length}`);
-    });
+    if (!uploadedChunks.has(`${fileId}_${chunkId}`)) {
+      // TODO: Write file to blob storage
+      req.on("data", (chunk) => {
+        fs.appendFileSync(
+          path.join(__dirname, "/uploads", `${fileId}_${fileName}`),
+          chunk,
+        );
+        console.log(`Chunk ${chunkId} received. Length: ${chunk.length}`);
 
-    res.end("Working!");
+        uploadedChunks.add(`${fileId}_${chunkId}`);
+      });
+    } else {
+      console.log(`Chunk ${chunkId} already processed. Skipping.`);
+    }
+
+    res.end("File uploaded.");
   }
 
   if (req.url !== "/upload") {
