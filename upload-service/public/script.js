@@ -1,6 +1,8 @@
 const btnUpload = document.getElementById("file-button");
-const divOutput = document.getElementById("div-output");
+const outputDiv = document.getElementById("meter");
 const fileUploads = document.getElementById("file");
+const outputBar = document.getElementById("bar");
+outputBar.style = "width: 0%";
 
 btnUpload.addEventListener("click", (e) => {
   e.preventDefault();
@@ -13,7 +15,7 @@ btnUpload.addEventListener("click", (e) => {
 
   fileReader.onload = async (loadEvent) => {
     const byteLength = loadEvent.target.result.byteLength;
-    const chunkSize = 5000;
+    const chunkSize = 8000;
     const chunkCount = Math.ceil(byteLength / chunkSize);
 
     console.log(`Byte Length: ${byteLength}`);
@@ -27,17 +29,21 @@ btnUpload.addEventListener("click", (e) => {
       const high = low + chunkSize;
       const chunk = loadEvent.target.result.slice(low, high);
 
+      // TODO: Try out parallelization
       await fetch(endpoint, {
         method: "POST",
         headers: {
-          "Content-Type": "application/octet-stream",
-          "Content-Length": chunkSize,
+          "content-type": "application/octet-stream",
+          "content-length": chunkSize,
           // Custom headers
-          "File-Name": fileName,
-          "File-Id": fileId,
+          "file-name": fileName,
+          "file-id": fileId,
         },
         body: chunk,
       });
+
+      const percentage = Math.round(((chunkId + 1) * 100) / chunkCount);
+      outputBar.style = `width: calc(${percentage}% - 4px)`;
     }
   };
 
