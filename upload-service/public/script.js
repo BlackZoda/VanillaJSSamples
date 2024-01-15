@@ -3,6 +3,10 @@ const outputDiv = document.getElementById("meter");
 const fileUploads = document.getElementById("file");
 const outputBar = document.getElementById("bar");
 
+fileUploads.addEventListener("change", () => {
+  outputBar.style = "width: 2%";
+});
+
 btnUpload.addEventListener("click", (e) => {
   e.preventDefault();
 
@@ -47,6 +51,10 @@ btnUpload.addEventListener("click", (e) => {
           },
           body: chunk,
         });
+        const percentage = Math.round(((chunkNo + 1) * 100) / chunkCount);
+        outputBar.style = `width: calc(${percentage}% - calc(12px * ${
+          percentage / 100
+        }))`;
       };
 
       // TODO: Try out parallelization
@@ -62,8 +70,6 @@ btnUpload.addEventListener("click", (e) => {
           retryCount++;
         }
       }
-      const percentage = Math.round(((chunkNo + 1) * 100) / chunkCount);
-      outputBar.style = `width: calc(${percentage}% - 12px)`;
     }
   };
 
