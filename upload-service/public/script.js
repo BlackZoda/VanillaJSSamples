@@ -2,7 +2,6 @@ const btnUpload = document.getElementById("file-button");
 const outputDiv = document.getElementById("meter");
 const fileUploads = document.getElementById("file");
 const outputBar = document.getElementById("bar");
-outputBar.style = "width: 0%";
 
 btnUpload.addEventListener("click", (e) => {
   e.preventDefault();
