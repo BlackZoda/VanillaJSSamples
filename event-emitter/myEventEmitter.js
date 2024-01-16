@@ -1,17 +1,55 @@
 class MyEventEmitter {
   listeners = {};
 
-  addListeer(eventName, fn) {}
-  on(eventName, fn) {}
+  addListeer(event, fn) {
+    this.listeners[event] = this.listeners[event] || [];
+    this.listeners[event].push(fn);
+    return this;
+  }
+  on(event, fn) {
+    return this.addListeer(event, fn);
+  }
 
-  removeListener(eventName, fn) {}
-  off(eventName, fn) {}
+  removeListener(event, fn) {
+    let lis = this.listeners[event];
+    if (!lis) return this;
+    for (let i = lis.length; i >= 0; i--) {
+      if (lis[i] === fn) {
+        lis.splice(i, 1);
+        break;
+      }
+    }
+    return this;
+  }
+  off(event, fn) {
+    return this.removeListener(event, fn);
+  }
 
-  once(eventName, fn) {}
+  once(event, fn) {
+    this.listeners[event] = this.listeners[event] || [];
+    const onceWrapper = () => {
+      fn();
+      this.off(event, onceWrapper);
+    };
+    this.listeners[event].push(onceWrapper);
+    return this;
+  }
 
-  emit(eventName, ...args) {}
+  emit(event, ...args) {
+    let fns = this.listeners[event];
+    if (!fns) return false;
+    fns.forEach((f) => f(...args));
+    return true;
+  }
 
-  listenerCount(eventName) {}
+  listenerCount(event) {
+    let fns = this.listeners[event] || [];
+    return fns.length;
+  }
 
-  rawListeners(eventName) {}
+  rawListeners(event) {
+    return this.listeners[event];
+  }
 }
+
+module.exports = MyEventEmitter;
