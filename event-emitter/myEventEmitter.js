@@ -13,8 +13,8 @@ class MyEventEmitter {
   removeListener(event, fn) {
     let lis = this.listeners[event];
     if (!lis) return this;
-    for (let i = lis.length; i >= 0; i--) {
-      if (lis[i] === fn) {
+    for (let i = 0; i <= lis.length; i++) {
+      if (lis[i].toString() === fn.toString()) {
         lis.splice(i, 1);
         break;
       }
