@@ -1,16 +1,21 @@
 const http = require("node:http");
 const fs = require("node:fs");
 const path = require("node:path");
+const { BlobServiceClient } = require("@azure/storage-blob");
+const { BlockBlobClient } = require("@azure/storage-blob");
+require("dotenv").config();
 
-const uploadedChunks = new Set();
-const uploadDirectory = path.join(__dirname, "/upload");
-const publicDirectory = path.join(__dirname, "/public");
-const PORT = 8080;
+const connectionString = process.env.CONNECTION_STRING;
+const containerName = process.env.CONTAINER_NAME;
+
+const blobServerClient =
+  BlobServiceClient.fromConnectionString(connectionString);
+const containerClient = blobServerClient.getContainerClient(containerName);
 
 const server = http.createServer((req, res) => {
   if (req.url === "/upload") {
-    // TODO: Add file type validation
-
+    // TODO: Add validation
+    // TODO: Add idempotency
     res.writeHead(200, {
       "Content-Type": "text/plain",
     });
@@ -21,23 +26,29 @@ const server = http.createServer((req, res) => {
     const fileId = req.headers["file-id"];
     const chunkId = req.headers["chunk-id"];
 
-    if (!uploadedChunks.has(`${fileId}_${chunkId}`)) {
-      // TODO: Write file to blob storage
-      req.on("data", (chunk) => {
-        fs.appendFileSync(
-          path.join(uploadDirectory, `${fileId}_${fileName}`),
-          chunk,
-        );
-        console.log(`Chunk ${chunkId} received. Length: ${chunk.length}`);
+    const blobClient = containerClient.getBlockBlobClient(fileId + ".jpg");
 
-        uploadedChunks.add(`${fileId}_${chunkId}`);
-      });
-    } else {
-      console.log(`Chunk ${chunkId} already processed. Skipping.`);
-      // TODO: Handle error gracefully
-    }
+    // TODO: Write file to blob storage
 
-    res.end("File uploaded.");
+    const chunks = [];
+
+    req.on("data", (chunk) => {
+      // fs.appendFileSync(`${fileId}_${fileName}`, chunk);
+      chunks.push(chunk);
+    });
+
+    req.on("end", async () => {
+      const buffer = Buffer.concat(chunks);
+      const blobClient = containerClient.getBlockBlobClient(fileId + ".jpg");
+
+      console.log(buffer.length);
+      // await blobClient.uploadStream(buffer, )
+      /* const uploadBlobResponse = await blobClient.upload(buffer, buffer.length);
+      console.log(uploadBlobResponse.requestId);
+      console.log(uploadBlobResponse._response.status); */
+
+      res.end("Working!");
+    });
   }
 
   if (req.url !== "/upload") {
@@ -68,10 +79,7 @@ const server = http.createServer((req, res) => {
   }
 });
 
-process.on("SIGINT", () => {
-  console.log("Server shutting down gracefully...");
-  process.exit();
-});
+const PORT = 8080;
 
 server.listen(PORT, () => {
   console.log(`Server running at http://localhost:${PORT}/`);

@@ -3,10 +3,6 @@ const outputDiv = document.getElementById("meter");
 const fileUploads = document.getElementById("file");
 const outputBar = document.getElementById("bar");
 
-fileUploads.addEventListener("change", () => {
-  outputBar.style = "width: 2%";
-});
-
 btnUpload.addEventListener("click", (e) => {
   e.preventDefault();
 
@@ -34,42 +30,27 @@ btnUpload.addEventListener("click", (e) => {
       const high = low + chunkSize;
       const chunk = loadEvent.target.result.slice(low, high);
       const chunkId = uuidv4();
-      let retryCount = 0;
 
-      const sendChunk = async (retry) => {
+      // TODO: Try out parallelization
+      // TODO: Move custom headers to query strings
+      try {
         await fetch(endpoint, {
           method: "POST",
           headers: {
             "content-type": "application/octet-stream",
             "content-length": chunkSize,
-            // Custom headers - should be removed for using proxy servers etc.
-            // TODO: Move custom headers to query strings
+            // Custom headers
             "file-name": fileName,
             "file-id": fileId,
             "chunk-id": chunkId,
-            "retry-attempt": retry,
           },
           body: chunk,
         });
-        const percentage = Math.round(((chunkNo + 1) * 100) / chunkCount);
-        outputBar.style = `width: calc(${percentage}% - calc(12px * ${
-          percentage / 100
-        }))`;
-      };
-
-      // TODO: Try out parallelization
-
-      try {
-        sendChunk(0);
       } catch (err) {
         console.error(`Error uploading chunk ${chunkId}:`, err);
-        while (retryCount < 5) {
-          setTimeout(() => {
-            sendChunk(retryCount);
-          }, retryCount * 1000);
-          retryCount++;
-        }
       }
+      const percentage = Math.round(((chunkNo + 1) * 100) / chunkCount);
+      outputBar.style = `width: calc(${percentage}% - 12px)`;
     }
   };
 
