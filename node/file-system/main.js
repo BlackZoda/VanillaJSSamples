@@ -1,17 +1,22 @@
 // alternative to fs.watch
 const chokidar = require("chokidar");
 const fsPromises = require("node:fs/promises");
+const path = require("node:path");
 
 async function main() {
+  const CMDS = {
+    createFile: "create file",
+  };
+
   commandFile = await fsPromises.open("./commands.txt", "r");
 
-  commandFile.on("change", (path) => {
-    console.log(`${path} changed!`);
+  commandFile.on("change", (filePath) => {
+    console.log(`${filePath} changed!`);
   });
 
   try {
-    chokidar.watch("./commands.txt").on("change", async (path) => {
-      commandFile.emit("change", path);
+    chokidar.watch("./commands.txt").on("change", async (filePath) => {
+      commandFile.emit("change", filePath);
 
       const buffer = Buffer.alloc((await commandFile.stat()).size);
 
@@ -23,14 +28,22 @@ async function main() {
       };
 
       // reading the whole content
-      const content = await commandFile.read(
+      await commandFile.read(
         fileProps.buffer,
         fileProps.offset,
         fileProps.length,
         fileProps.position,
       );
 
-      console.log(content);
+      const command = buffer.toString("utf8");
+
+      // create file:
+      // create file <filePath>
+      command.toLowerCase().includes(CMDS.createFile);
+      if (command.toLowerCase().includes(CMDS.createFile)) {
+        const filePath = path.join(__dirname, "output", "test.txt");
+        createFile(filePath);
+      }
     });
 
     await new Promise(() => {});
@@ -42,3 +55,20 @@ async function main() {
 }
 
 main();
+
+async function createFile(filePath) {
+  let existingFile;
+
+  try {
+    existingFile = await fsPromises.open(filePath, "r");
+    console.log(`The file ${filePath} already exist.`);
+    existingFile.close();
+  } catch (e) {
+    const newFile = await fsPromises.open(filePath, "w");
+    console.log(`The file ${filePath} was created!`);
+    newFile.close();
+  }
+}
+
+// decoder 01 => maningful
+// encoder meaningful => 01
