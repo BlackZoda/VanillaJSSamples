@@ -1,5 +1,4 @@
 const { heading, print } = require("../utils/formatOutput");
-const padding = 30;
 
 heading("Buffers", "=-*-=");
 
