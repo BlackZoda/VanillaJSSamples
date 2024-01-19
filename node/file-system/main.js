@@ -41,8 +41,12 @@ async function main() {
       // create file <filePath>
       command.toLowerCase().includes(CMDS.createFile);
       if (command.toLowerCase().includes(CMDS.createFile)) {
-        const filePath = path.join(__dirname, "output", "test.txt");
-        createFile(filePath);
+        const fileName = command
+          .substring(CMDS.createFile.length + 1)
+          .trimEnd();
+        console.log("fileName length: ", fileName.length);
+        console.log("fileName content: ", JSON.stringify(fileName));
+        createFile(fileName);
       }
     });
 
@@ -56,16 +60,17 @@ async function main() {
 
 main();
 
-async function createFile(filePath) {
+async function createFile(fileName) {
+  const filePath = path.join(__dirname, "output", fileName);
   let existingFile;
 
   try {
     existingFile = await fsPromises.open(filePath, "r");
-    console.log(`The file ${filePath} already exist.`);
+    console.log(`The file ${fileName} already exist.`);
     existingFile.close();
   } catch (e) {
     const newFile = await fsPromises.open(filePath, "w");
-    console.log(`The file ${filePath} was created!`);
+    console.log(`The file ${fileName} was created!`);
     newFile.close();
   }
 }
