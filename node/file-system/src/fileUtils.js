@@ -8,13 +8,7 @@ const getFileNames = (cmdFileInput, command) => {
     .split(" ");
 };
 
-const getNewFileName = (cmdFileInput, command, oldFileName) => {
-  return cmdFileInput
-    .substring(command.length + oldFileName.length + 2)
-    .trimEnd();
-};
-
-async function getFileObject(dir, fileName) {
+async function getFileInfo(dir, fileName) {
   const filePath = path.join(dir, fileName);
   let fileExists = false;
 
@@ -32,4 +26,4 @@ async function getFileObject(dir, fileName) {
   };
 }
 
-module.exports = { getFileNames, getNewFileName, getFileObject };
+module.exports = { getFileNames, getFileInfo };

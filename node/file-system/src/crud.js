@@ -1,43 +1,60 @@
 const fsPromises = require("node:fs/promises");
 
-async function createFile(file) {
-  if (file.exists) {
-    console.log(`The file ${file.name} already exists.`);
+async function createFile(fileInfo) {
+  if (fileInfo.exists) {
+    console.log(`The file ${fileInfo.name} already exists.`);
   } else {
     try {
-      const newFile = await fsPromises.open(file.path, "w");
-      console.log(`The file ${file.name} was created!`);
-      newFile.close();
+      const fileHandle = await fsPromises.open(fileInfo.path, "w");
+      console.log(`The file ${fileInfo.name} was created!`);
+      fileHandle.close();
     } catch (e) {
       console.error(e.message);
     }
   }
 }
 
-async function deleteFile(file) {
-  if (file.exists) {
+async function deleteFile(fileInfo) {
+  if (fileInfo.exists) {
     try {
-      await fsPromises.rm(file.path);
-      console.log(`The file ${file.name} was deleted!`);
+      await fsPromises.rm(fileInfo.path);
+      console.log(`The file ${fileInfo.name} was deleted!`);
     } catch (e) {
       console.error(e);
     }
   } else {
-    console.log(`The file ${file.name} doesn't exist.`);
+    console.log(`The file ${fileInfo.name} doesn't exist.`);
   }
 }
 
-async function renameFile(oldFile, newFile) {
-  if (oldFile.exists) {
+async function renameFile(oldFileInfo, newFileInfo) {
+  if (oldFileInfo.exists) {
     try {
-      await fsPromises.rename(oldFile.path, newFile.path);
-      console.log(`The file ${oldFile.name} was renamed to ${newFile.name}`);
+      await fsPromises.rename(oldFileInfo.path, newFileInfo.path);
+      console.log(
+        `The file ${oldFileInfo.name} was renamed to ${newFileInfo.name}`,
+      );
     } catch (e) {
       console.error(e);
     }
   } else {
-    console.log(`The file ${oldFile.name} doesn't exist.`);
+    console.log(`The file ${oldFileInfo.name} doesn't exist.`);
   }
 }
 
-module.exports = { createFile, deleteFile, renameFile };
+async function readFile(fileInfo) {
+  if (fileInfo.exists) {
+    try {
+      const fileHandle = await fsPromises.open(fileInfo.path, "r");
+      const content = await fileHandle.readFile();
+      console.log(content.toString().trim());
+      await fileHandle.close();
+    } catch (e) {
+      console.error(e.message);
+    }
+  } else {
+    console.log(`The file ${fileInfo.name} doesn't exist.`);
+  }
+}
+
+module.exports = { createFile, deleteFile, renameFile, readFile };

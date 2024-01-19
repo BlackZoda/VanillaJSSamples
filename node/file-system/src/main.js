@@ -1,8 +1,7 @@
 const chokidar = require("chokidar");
 const fsPromises = require("node:fs/promises");
-const { createFile, deleteFile, renameFile } = require("./crud");
-const { getFileNames, getFileObject } = require("./fileUtils");
-const path = require("node:path");
+const { createFile, deleteFile, renameFile, readFile } = require("./crud");
+const { getFileNames, getFileInfo } = require("./fileUtils");
 
 async function main(OPT, CMD) {
   cmdFile = await fsPromises.open(OPT.cmdFile, "r");
@@ -12,14 +11,14 @@ async function main(OPT, CMD) {
 
     if (cmdFileInput.includes(CMD.createFile)) {
       const fileName = getFileNames(cmdFileInput, CMD.createFile)[0];
-      const file = await getFileObject(OPT.outputDir, fileName);
+      const file = await getFileInfo(OPT.outputDir, fileName);
       await createFile(file);
     }
 
     if (cmdFileInput.includes(CMD.deleteFile)) {
       const fileName = getFileNames(cmdFileInput, CMD.deleteFile)[0];
-      const file = await getFileObject(OPT.outputDir, fileName);
-      await deleteFile(file);
+      const fileInfo = await getFileInfo(OPT.outputDir, fileName);
+      await deleteFile(fileInfo);
     }
 
     if (cmdFileInput.includes(CMD.renameFile)) {
@@ -27,15 +26,20 @@ async function main(OPT, CMD) {
       if (fileNames.length === 2) {
         const oldFileName = fileNames[0];
         const newFileName = fileNames[1];
-        const oldFile = await getFileObject(OPT.outputDir, oldFileName);
-        const newFile = await getFileObject(OPT.outputDir, newFileName);
-        await renameFile(oldFile, newFile);
+        const oldFileInfo = await getFileInfo(OPT.outputDir, oldFileName);
+        const newFileInfo = await getFileInfo(OPT.outputDir, newFileName);
+        await renameFile(oldFileInfo, newFileInfo);
       } else {
         console.error("Need a target file and new file name to rename");
       }
     }
 
     // TODO: read file <path>
+    if (cmdFileInput.includes(CMD.readFile)) {
+      const fileName = getFileNames(cmdFileInput, CMD.readFile)[0];
+      const fileInfo = await getFileInfo(OPT.outputDir, fileName);
+      await readFile(fileInfo);
+    }
 
     // TODO: overwrite file <path> "content"
 

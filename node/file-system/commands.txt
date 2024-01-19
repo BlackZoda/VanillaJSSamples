@@ -1,1 +1,1 @@
-rename file index.htm index.html
+read file test.txt
