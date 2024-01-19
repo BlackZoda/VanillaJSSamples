@@ -1,8 +1,17 @@
 const path = require("node:path");
 const fsPromises = require("node:fs/promises");
 
-const getFileName = (cmdFileInput, command) => {
-  return cmdFileInput.substring(command.length + 1).trimEnd();
+const getFileNames = (cmdFileInput, command) => {
+  return cmdFileInput
+    .substring(command.length + 1)
+    .trimEnd()
+    .split(" ");
+};
+
+const getNewFileName = (cmdFileInput, command, oldFileName) => {
+  return cmdFileInput
+    .substring(command.length + oldFileName.length + 2)
+    .trimEnd();
 };
 
 async function getFileObject(dir, fileName) {
@@ -17,9 +26,10 @@ async function getFileObject(dir, fileName) {
 
   return {
     name: fileName,
+    dir,
     path: filePath,
     exists: fileExists,
   };
 }
 
-module.exports = { getFileName, getFileObject };
+module.exports = { getFileNames, getNewFileName, getFileObject };

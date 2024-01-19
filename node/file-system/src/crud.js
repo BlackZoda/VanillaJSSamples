@@ -27,4 +27,17 @@ async function deleteFile(file) {
   }
 }
 
-module.exports = { createFile, deleteFile };
+async function renameFile(oldFile, newFile) {
+  if (oldFile.exists) {
+    try {
+      await fsPromises.rename(oldFile.path, newFile.path);
+      console.log(`The file ${oldFile.name} was renamed to ${newFile.name}`);
+    } catch (e) {
+      console.error(e);
+    }
+  } else {
+    console.log(`The file ${oldFile.name} doesn't exist.`);
+  }
+}
+
+module.exports = { createFile, deleteFile, renameFile };

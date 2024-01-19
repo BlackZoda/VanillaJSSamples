@@ -1,7 +1,8 @@
 const chokidar = require("chokidar");
 const fsPromises = require("node:fs/promises");
-const { createFile, deleteFile } = require("./crud");
-const { getFileName, getFileObject } = require("./fileUtils");
+const { createFile, deleteFile, renameFile } = require("./crud");
+const { getFileNames, getFileObject } = require("./fileUtils");
+const path = require("node:path");
 
 async function main(OPT, CMD) {
   cmdFile = await fsPromises.open(OPT.cmdFile, "r");
@@ -10,18 +11,29 @@ async function main(OPT, CMD) {
     cmdFileInput = cmdFileInput.toLowerCase();
 
     if (cmdFileInput.includes(CMD.createFile)) {
-      const fileName = getFileName(cmdFileInput, CMD.createFile);
-      const fileObj = await getFileObject(OPT.outputDir, fileName);
-      await createFile(fileObj);
+      const fileName = getFileNames(cmdFileInput, CMD.createFile)[0];
+      const file = await getFileObject(OPT.outputDir, fileName);
+      await createFile(file);
     }
 
     if (cmdFileInput.includes(CMD.deleteFile)) {
-      const fileName = getFileName(cmdFileInput, CMD.deleteFile);
+      const fileName = getFileNames(cmdFileInput, CMD.deleteFile)[0];
       const file = await getFileObject(OPT.outputDir, fileName);
-      deleteFile(file);
+      await deleteFile(file);
     }
 
-    // TODO: rename file <path> <path>
+    if (cmdFileInput.includes(CMD.renameFile)) {
+      const fileNames = getFileNames(cmdFileInput, CMD.renameFile);
+      if (fileNames.length === 2) {
+        const oldFileName = fileNames[0];
+        const newFileName = fileNames[1];
+        const oldFile = await getFileObject(OPT.outputDir, oldFileName);
+        const newFile = await getFileObject(OPT.outputDir, newFileName);
+        await renameFile(oldFile, newFile);
+      } else {
+        console.error("Need a target file and new file name to rename");
+      }
+    }
 
     // TODO: read file <path>
 
