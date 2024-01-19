@@ -1,29 +1,50 @@
 const chokidar = require("chokidar");
 const fsPromises = require("node:fs/promises");
-const crud = require("./crud.js");
+const path = require("node:path");
+const { createFile, deleteFile } = require("./crud.js");
 
 async function main(OPT, CMD) {
   cmdFile = await fsPromises.open(OPT.cmdFile, "r");
 
-  cmdFile.on("change", (command) => {
-    command = command.toLowerCase();
-    if (command.includes(CMD.createFile)) {
-      const fileName = command.substring(CMD.createFile.length + 1).trimEnd();
-      crud.createFile(OPT.outputDir, fileName);
+  cmdFile.on("change", (cmdFileInput) => {
+    cmdFileInput = cmdFileInput.toLowerCase();
+
+    const getFileName = (command) =>
+      cmdFileInput.substring(command.length + 1).trimEnd();
+
+    function getFilePath(dir, fileName) {
+      try {
+        filePath = path.join(dir, fileName);
+        return filePath;
+      } catch (e) {
+        console.error(e.message);
+        return null;
+      }
     }
-    // TODO: delete file <path>
+
+    if (cmdFileInput.includes(CMD.createFile)) {
+      const fileName = getFileName(CMD.createFile);
+      const filePath = getFilePath(OPT.outputDir, fileName);
+      createFile(filePath, fileName);
+    }
+
+    if (cmdFileInput.includes(CMD.deleteFile)) {
+      const fileName = getFileName(CMD.deleteFile);
+      const filePath = getFilePath(OPT.outputDir, fileName);
+      deleteFile(filePath, fileName);
+    }
 
     // TODO: rename file <path> <path>
 
     // TODO: read file <path>
 
-    // TODO: overwrite file "content" <path>
+    // TODO: overwrite file <path> "content"
 
-    // TODO: append file "content" <path>
+    // TODO: append file <path> "content"
   });
 
   try {
-    chokidar.watch(OPT.cmdFile).on("change", async (filePath) => {
+    chokidar.watch(OPT.cmdFile).on("change", async () => {
       const buffer = Buffer.alloc((await cmdFile.stat()).size);
 
       const fileProps = {
@@ -41,9 +62,9 @@ async function main(OPT, CMD) {
         fileProps.position,
       );
 
-      const command = buffer.toString("utf8");
+      const cmdFileInput = buffer.toString("utf8");
 
-      cmdFile.emit("change", command);
+      cmdFile.emit("change", cmdFileInput);
     });
 
     await new Promise(() => {});
