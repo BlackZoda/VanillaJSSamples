@@ -1,6 +1,6 @@
 const fsPromises = require("node:fs/promises");
 
-async function createFile(fileInfo) {
+const createFile = async (fileInfo) => {
   if (fileInfo.exists) {
     console.log(`The file ${fileInfo.name} already exists.`);
   } else {
@@ -12,9 +12,9 @@ async function createFile(fileInfo) {
       console.error(e.message);
     }
   }
-}
+};
 
-async function deleteFile(fileInfo) {
+const deleteFile = async (fileInfo) => {
   if (fileInfo.exists) {
     try {
       await fsPromises.rm(fileInfo.path);
@@ -23,11 +23,11 @@ async function deleteFile(fileInfo) {
       console.error(e);
     }
   } else {
-    console.log(`The file ${fileInfo.name} doesn't exist.`);
+    fileDoesntExist(fileInfo.name);
   }
-}
+};
 
-async function renameFile(oldFileInfo, newFileInfo) {
+const renameFile = async (oldFileInfo, newFileInfo) => {
   if (oldFileInfo.exists) {
     try {
       await fsPromises.rename(oldFileInfo.path, newFileInfo.path);
@@ -38,11 +38,11 @@ async function renameFile(oldFileInfo, newFileInfo) {
       console.error(e);
     }
   } else {
-    console.log(`The file ${oldFileInfo.name} doesn't exist.`);
+    fileDoesntExist(fileInfo.name);
   }
-}
+};
 
-async function readFile(fileInfo) {
+const readFile = async (fileInfo) => {
   if (fileInfo.exists) {
     try {
       const fileHandle = await fsPromises.open(fileInfo.path, "r");
@@ -53,8 +53,34 @@ async function readFile(fileInfo) {
       console.error(e.message);
     }
   } else {
-    console.log(`The file ${fileInfo.name} doesn't exist.`);
+    fileDoesntExist(fileInfo.name);
   }
+};
+
+overwriteFile = async (fileInfo, content) => {
+  if (fileInfo.exists) {
+    try {
+      console.log("New content:", content);
+      const fileHandle = await fsPromises.open(fileInfo.path, "w");
+      await fileHandle.write(content);
+      console.log(`Overwrote the file ${fileInfo.name}.`);
+      await fileHandle.close();
+    } catch (e) {
+      fileDoesntExist(fileInfo.name);
+    }
+  } else {
+    fileDoesntExist(fileInfo.name);
+  }
+};
+
+function fileDoesntExist(fileName) {
+  console.log(`The file ${fileName} doesn't exist.`);
 }
 
-module.exports = { createFile, deleteFile, renameFile, readFile };
+module.exports = {
+  createFile,
+  deleteFile,
+  renameFile,
+  readFile,
+  overwriteFile,
+};

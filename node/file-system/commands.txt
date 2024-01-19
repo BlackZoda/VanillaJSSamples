@@ -1,1 +1,1 @@
-read file test.txt
+overwrite file test4.txt {hello world}

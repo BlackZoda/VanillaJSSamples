@@ -2,10 +2,13 @@ const path = require("node:path");
 const fsPromises = require("node:fs/promises");
 
 const getFileNames = (cmdFileInput, command) => {
-  return cmdFileInput
-    .substring(command.length + 1)
-    .trimEnd()
-    .split(" ");
+  const cmds = cmdFileInput.substring(command.length + 1).trimEnd();
+
+  return command === "rename file"
+    ? cmds.split(" ")
+    : command === "overwrite file"
+      ? cmds.split(" ")[0]
+      : cmds;
 };
 
 async function getFileInfo(dir, fileName) {
@@ -26,4 +29,14 @@ async function getFileInfo(dir, fileName) {
   };
 }
 
-module.exports = { getFileNames, getFileInfo };
+async function getNewContent(cmdFileInput) {
+  const re = /\{([^}]+)\}/;
+  const match = cmdFileInput.match(re);
+  if (match) {
+    return match[1];
+  } else {
+    return "";
+  }
+}
+
+module.exports = { getFileNames, getFileInfo, getNewContent };
