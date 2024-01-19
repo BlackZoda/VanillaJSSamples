@@ -48,6 +48,11 @@ async function main() {
         console.log("fileName content: ", JSON.stringify(fileName));
         createFile(fileName);
       }
+      // TODO: delete file <path>
+
+      // TODO: read file <path>
+
+      // TODO: update file<path>
     });
 
     await new Promise(() => {});
@@ -74,6 +79,3 @@ async function createFile(fileName) {
     newFile.close();
   }
 }
-
-// decoder 01 => maningful
-// encoder meaningful => 01
