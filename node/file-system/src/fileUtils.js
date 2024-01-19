@@ -1,14 +1,14 @@
 const path = require("node:path");
 const fsPromises = require("node:fs/promises");
 
-const getFileNames = (cmdFileInput, command) => {
-  const cmds = cmdFileInput.substring(command.length + 1).trimEnd();
+const getFileNames = (cmdFileInput, CMD, currentCmd) => {
+  const extractedCmds = cmdFileInput.substring(currentCmd.length + 1).trimEnd();
 
-  return command === "rename file"
-    ? cmds.split(" ")
-    : command === "overwrite file"
-      ? cmds.split(" ")[0]
-      : cmds;
+  return currentCmd === CMD.renameFile
+    ? extractedCmds.split(" ").slice(0, 2)
+    : currentCmd === CMD.overwriteFile || CMD.appendFile
+      ? extractedCmds.split(" ")[0]
+      : extractedCmds;
 };
 
 async function getFileInfo(dir, fileName) {

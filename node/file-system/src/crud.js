@@ -62,8 +62,24 @@ overwriteFile = async (fileInfo, content) => {
     try {
       console.log("New content:", content);
       const fileHandle = await fsPromises.open(fileInfo.path, "w");
-      await fileHandle.write(content);
+      await fileHandle.write(content + "\n");
       console.log(`Overwrote the file ${fileInfo.name}.`);
+      await fileHandle.close();
+    } catch (e) {
+      fileDoesntExist(fileInfo.name);
+    }
+  } else {
+    fileDoesntExist(fileInfo.name);
+  }
+};
+
+appendFile = async (fileInfo, content) => {
+  if (fileInfo.exists) {
+    try {
+      console.log("New content:", content);
+      const fileHandle = await fsPromises.open(fileInfo.path, "a");
+      await fileHandle.write(content + "\n");
+      console.log(`Appended to the file ${fileInfo.name}.`);
       await fileHandle.close();
     } catch (e) {
       fileDoesntExist(fileInfo.name);
@@ -83,4 +99,5 @@ module.exports = {
   renameFile,
   readFile,
   overwriteFile,
+  appendFile,
 };

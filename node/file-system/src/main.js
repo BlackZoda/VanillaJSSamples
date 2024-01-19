@@ -6,6 +6,7 @@ const {
   renameFile,
   readFile,
   overwriteFile,
+  appendFile,
 } = require("./crud");
 const { getFileNames, getFileInfo, getNewContent } = require("./fileUtils");
 
@@ -13,12 +14,10 @@ async function main(OPT, CMD) {
   cmdFile = await fsPromises.open(OPT.cmdFile, "r");
 
   cmdFile.on("change", async (cmdFileInput) => {
-    cmdFileInput = cmdFileInput.toLowerCase();
-
     // command template for creating a new file in commands.txt:
     // create file newfile.txt
     if (cmdFileInput.includes(CMD.createFile)) {
-      const fileName = getFileNames(cmdFileInput, CMD.createFile);
+      const fileName = getFileNames(cmdFileInput, CMD, CMD.createFile);
       const fileInfo = await getFileInfo(OPT.outputDir, fileName);
       await createFile(fileInfo);
     }
@@ -26,7 +25,7 @@ async function main(OPT, CMD) {
     // command template for deleting a file in commands.txt:
     // delete file filenametodelete.txt
     if (cmdFileInput.includes(CMD.deleteFile)) {
-      const fileName = getFileNames(cmdFileInput, CMD.deleteFile);
+      const fileName = getFileNames(cmdFileInput, CMD, CMD.deleteFile);
       const fileInfo = await getFileInfo(OPT.outputDir, fileName);
       await deleteFile(fileInfo);
     }
@@ -34,7 +33,8 @@ async function main(OPT, CMD) {
     // command template for renaiming a file in commands.txt:
     // rename file oldfilename.txt newfilename.txt
     if (cmdFileInput.includes(CMD.renameFile)) {
-      const fileNames = getFileNames(cmdFileInput, CMD.renameFile);
+      const fileNames = getFileNames(cmdFileInput, CMD, CMD.renameFile);
+      console.log(fileNames);
       if (fileNames.length === 2) {
         const oldFileName = fileNames[0];
         const newFileName = fileNames[1];
@@ -49,7 +49,7 @@ async function main(OPT, CMD) {
     // command template for reading a file in commands.txt:
     // read file filename.txt
     if (cmdFileInput.includes(CMD.readFile)) {
-      const fileName = getFileNames(cmdFileInput, CMD.readFile);
+      const fileName = getFileNames(cmdFileInput, CMD, CMD.readFile);
       const fileInfo = await getFileInfo(OPT.outputDir, fileName);
       await readFile(fileInfo);
     }
@@ -57,13 +57,19 @@ async function main(OPT, CMD) {
     // command template for overwriting the content of a file in command.txt:
     // overwrite file <path> {content}
     if (cmdFileInput.includes(CMD.overwriteFile)) {
-      const fileName = getFileNames(cmdFileInput, CMD.overwriteFile);
+      const fileName = getFileNames(cmdFileInput, CMD, CMD.overwriteFile);
       const newContent = await getNewContent(cmdFileInput);
       const fileInfo = await getFileInfo(OPT.outputDir, fileName);
       await overwriteFile(fileInfo, newContent);
     }
 
     // TODO: append file <path> {content}
+    if (cmdFileInput.includes(CMD.appendFile)) {
+      const fileName = getFileNames(cmdFileInput, CMD, CMD.appendFile);
+      const newContent = await getNewContent(cmdFileInput);
+      const fileInfo = await getFileInfo(OPT.outputDir, fileName);
+      await appendFile(fileInfo, newContent);
+    }
   });
 
   try {
