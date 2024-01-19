@@ -1,24 +1,21 @@
 const fsPromises = require("node:fs/promises");
-const path = require("path");
 
-async function createFile(filePath, fileName) {
-  try {
-    existingFile = await fsPromises.open(filePath, "r");
-    console.log(`The file ${fileName} already exist.`);
-    existingFile.close();
-  } catch (e) {
-    const newFile = await fsPromises.open(filePath, "w");
-    console.log(`The file ${fileName} was created!`);
+async function createFile(file) {
+  if (file.exists) {
+    console.log(`The file ${file.name} already exists.`);
+  } else {
+    const newFile = await fsPromises.open(file.path, "w");
+    console.log(`The file ${file.name} was created!`);
     newFile.close();
   }
 }
 
-async function deleteFile(filePath, fileName) {
-  try {
-    await fsPromises.rm(filePath);
-    console.log(`The file ${fileName} was deleted.`);
-  } catch (e) {
-    console.error(`The file ${fileName} doesn't exist.`);
+async function deleteFile(file) {
+  if (file.exists) {
+    await fsPromises.rm(file.path);
+    console.log(`The file ${file.name} was deleted!`);
+  } else {
+    console.log(`The file ${file.name} doesn't exist.`);
   }
 }
 

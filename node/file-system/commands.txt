@@ -1,1 +1,1 @@
-create file style.css
+create file script.js

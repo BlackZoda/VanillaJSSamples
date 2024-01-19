@@ -1,37 +1,24 @@
 const chokidar = require("chokidar");
 const fsPromises = require("node:fs/promises");
-const path = require("node:path");
-const { createFile, deleteFile } = require("./crud.js");
+const { createFile, deleteFile } = require("./crud");
+const { getFileName, validateFile } = require("./fileUtils");
 
 async function main(OPT, CMD) {
   cmdFile = await fsPromises.open(OPT.cmdFile, "r");
 
-  cmdFile.on("change", (cmdFileInput) => {
+  cmdFile.on("change", async (cmdFileInput) => {
     cmdFileInput = cmdFileInput.toLowerCase();
 
-    const getFileName = (command) =>
-      cmdFileInput.substring(command.length + 1).trimEnd();
-
-    function getFilePath(dir, fileName) {
-      try {
-        filePath = path.join(dir, fileName);
-        return filePath;
-      } catch (e) {
-        console.error(e.message);
-        return null;
-      }
-    }
-
     if (cmdFileInput.includes(CMD.createFile)) {
-      const fileName = getFileName(CMD.createFile);
-      const filePath = getFilePath(OPT.outputDir, fileName);
-      createFile(filePath, fileName);
+      const fileName = getFileName(cmdFileInput, CMD.createFile);
+      const file = await validateFile(OPT.outputDir, fileName);
+      await createFile(file);
     }
 
     if (cmdFileInput.includes(CMD.deleteFile)) {
-      const fileName = getFileName(CMD.deleteFile);
-      const filePath = getFilePath(OPT.outputDir, fileName);
-      deleteFile(filePath, fileName);
+      const fileName = getFileName(cmdFileInput, CMD.deleteFile);
+      const file = await validateFile(OPT.outputDir, fileName);
+      deleteFile(file);
     }
 
     // TODO: rename file <path> <path>
