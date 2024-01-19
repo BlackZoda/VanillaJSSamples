@@ -1,7 +1,7 @@
 const chokidar = require("chokidar");
 const fsPromises = require("node:fs/promises");
 const { createFile, deleteFile } = require("./crud");
-const { getFileName, validateFile } = require("./fileUtils");
+const { getFileName, getFileObject } = require("./fileUtils");
 
 async function main(OPT, CMD) {
   cmdFile = await fsPromises.open(OPT.cmdFile, "r");
@@ -11,13 +11,13 @@ async function main(OPT, CMD) {
 
     if (cmdFileInput.includes(CMD.createFile)) {
       const fileName = getFileName(cmdFileInput, CMD.createFile);
-      const file = await validateFile(OPT.outputDir, fileName);
-      await createFile(file);
+      const fileObj = await getFileObject(OPT.outputDir, fileName);
+      await createFile(fileObj);
     }
 
     if (cmdFileInput.includes(CMD.deleteFile)) {
       const fileName = getFileName(cmdFileInput, CMD.deleteFile);
-      const file = await validateFile(OPT.outputDir, fileName);
+      const file = await getFileObject(OPT.outputDir, fileName);
       deleteFile(file);
     }
 

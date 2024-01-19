@@ -1,1 +1,1 @@
-create file script.js
+delete file script.js

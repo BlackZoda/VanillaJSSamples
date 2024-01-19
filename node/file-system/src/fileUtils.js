@@ -5,7 +5,7 @@ const getFileName = (cmdFileInput, command) => {
   return cmdFileInput.substring(command.length + 1).trimEnd();
 };
 
-async function validateFile(dir, fileName) {
+async function getFileObject(dir, fileName) {
   const filePath = path.join(dir, fileName);
   let fileExists = false;
 
@@ -13,9 +13,7 @@ async function validateFile(dir, fileName) {
     const file = await fsPromises.open(filePath);
     await file.close(filePath);
     fileExists = true;
-  } catch (e) {
-    console.error(e.message);
-  }
+  } catch (e) {}
 
   return {
     name: fileName,
@@ -24,4 +22,4 @@ async function validateFile(dir, fileName) {
   };
 }
 
-module.exports = { getFileName, validateFile };
+module.exports = { getFileName, getFileObject };
