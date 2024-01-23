@@ -72,6 +72,7 @@ async function main(OPT, CMD) {
     }
   });
 
+  // watcher...
   try {
     chokidar.watch(OPT.cmdFile).on("change", async () => {
       const buffer = Buffer.alloc((await cmdFile.stat()).size);

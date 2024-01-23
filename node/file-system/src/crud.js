@@ -17,7 +17,7 @@ const createFile = async (fileInfo) => {
 const deleteFile = async (fileInfo) => {
   if (fileInfo.exists) {
     try {
-      await fsPromises.rm(fileInfo.path);
+      await fsPromises.unlink(fileInfo.path);
       console.log(`The file ${fileInfo.name} was deleted!`);
     } catch (e) {
       console.error(e);
