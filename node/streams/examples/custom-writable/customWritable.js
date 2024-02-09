@@ -1,6 +1,5 @@
 const { Writable } = require("node:stream");
 const fs = require("node:fs");
-const fsPromises = require("node:fs/promises");
 
 class FileWriteStream extends Writable {
   constructor({ highWaterMark, fileName }) {
