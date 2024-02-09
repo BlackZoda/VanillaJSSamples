@@ -1,5 +1,6 @@
 const { Writable } = require("node:stream");
 const fs = require("node:fs");
+const fsPromises = require("node:fs/promises");
 
 class FileWriteStream extends Writable {
   constructor({ highWaterMark, fileName }) {
@@ -71,9 +72,41 @@ const stream = new FileWriteStream({
   fileName: "test.txt",
 });
 
-stream.write(Buffer.from("Example string.\n"));
-stream.end(Buffer.from("Last write.\n"));
+// stream.write(Buffer.from("Example string.\n"));
+// stream.end(Buffer.from("Last write.\n"));
 
 stream.on("finish", () => {
   console.log("Stream finished!");
 });
+
+async function customStream() {
+  console.time("many");
+  const stream = new FileWriteStream({ fileName: "test.txt" });
+
+  let i = 0;
+  const iterations = 10 ** 6;
+  const customStream = () => {
+    while (i <= iterations) {
+      const buff = Buffer.from(` ${i} `, "utf8");
+      if (i >= iterations - 1) {
+        return stream.end(buff);
+      }
+      // stop the loop if stream.write return false
+      if (!stream.write(buff)) break;
+      i++;
+    }
+  };
+
+  customStream();
+
+  // resume loop once the internal stream buffer is empty
+  stream.on("drain", () => {
+    customStream();
+  });
+
+  stream.on("finish", () => {
+    console.timeEnd("many");
+  });
+}
+
+customStream();
