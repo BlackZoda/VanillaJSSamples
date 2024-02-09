@@ -1,9 +1,16 @@
 const fsPromises = require("node:fs/promises");
+const path = require("node:path");
 
 async function main() {
   console.time("read");
-  const fileHandleRead = await fsPromises.open("src.txt", "r");
-  const fileHandleWrite = await fsPromises.open("dest.txt", "w");
+  const fileHandleRead = await fsPromises.open(
+    path.join(__dirname, "src.txt"),
+    "r",
+  );
+  const fileHandleWrite = await fsPromises.open(
+    path.join(__dirname, "dest.txt"),
+    "w",
+  );
 
   const streamRead = fileHandleRead.createReadStream({
     highWaterMark: 64 * 1024,
