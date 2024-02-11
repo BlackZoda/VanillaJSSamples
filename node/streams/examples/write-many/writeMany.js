@@ -5,7 +5,7 @@ const fs = require("node:fs");
 // RAM: 50 MB
 // CPU: 100% (one core)
 async function promiseMill() {
-  const fileHandle = await fsPromises.open("million.txt", "w");
+
   console.time("many");
   for (let i = 1; i <= 10 ** 6; i++) {
     await fileHandle.write(`${i} `);
