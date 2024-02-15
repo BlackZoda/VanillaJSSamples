@@ -4,44 +4,43 @@ const uploadStatus = document.getElementById("status");
 
 upload.addEventListener("click", () => {
   uploadStatus.innerHTML = "uploading...";
+  let fileUploaded = 0;
 
-  const selectedFile = file.files[0];
-  const fileReader = new FileReader();
+  for (let fileIndex = 0; fileIndex < file.files.length; fileIndex++) {
+    const selectedFile = file.files[fileIndex];
+    const fileReader = new FileReader();
 
-  console.log("selected file:", selectedFile);
+    fileReader.readAsArrayBuffer(selectedFile);
 
-  fileReader.readAsArrayBuffer(selectedFile);
+    fileReader.onload = async (event) => {
+      const content = event.target.result;
+      const CHUNK_SIZE = 8000;
+      const totalChunks = Math.ceil(content.byteLength / CHUNK_SIZE);
 
-  console.log("file reader:", fileReader);
+      const fileName =
+        Math.random().toString(36).slice(-6) + file.files[0].name;
 
-  fileReader.onload = async (event) => {
-    const content = event.target.result;
-    const CHUNK_SIZE = 5000;
-    const totalChunks = Math.ceil(content.byteLength / CHUNK_SIZE);
+      console.log("uploading...");
 
-    const fileName = Math.random().toString(36).slice(-6) + file.files[0].name;
+      for (let chunk = 0; chunk < totalChunks; chunk++) {
+        const CHUNK = content.slice(
+          chunk * CHUNK_SIZE,
+          (chunk + 1) * CHUNK_SIZE,
+        );
+        const endpoint = `/upload?fileName=${fileName}`;
 
-    console.log("uploading...");
+        await fetch(endpoint, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/octet-stream",
+            "Content-Length": CHUNK.length,
+          },
+          body: CHUNK,
+        });
+      }
+      fileUploaded += 1;
 
-    for (let chunk = 0; chunk < totalChunks; chunk++) {
-      console.log(`Uploading chunk ${chunk + 1}...`);
-      const CHUNK = content.slice(chunk * CHUNK_SIZE, (chunk + 1) * CHUNK_SIZE);
-      console.log(`${fileName}: ${CHUNK}`);
-      const endpoint = `/upload?fileName=${fileName}`;
-      console.log(endpoint);
-
-      await fetch(endpoint, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/octet-stream",
-          "Content-Length": CHUNK.length,
-        },
-        body: CHUNK,
-      });
-
-      console.log(`Chunk ${chunk + 1} uploaded...`);
-    }
-
-    uploadStatus.innerHTML = "uploaded!!!";
-  };
+      uploadStatus.innerHTML = `file ${fileUploaded} of ${file.files.length} uploaded!`;
+    };
+  }
 });
