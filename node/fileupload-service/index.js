@@ -34,8 +34,6 @@ const server = http.createServer((req, res) => {
     const parsedUrl = url.parse(req.url, true);
     const fileName = parsedUrl.query.fileName;
 
-    console.log("upload request received for file:", fileName);
-
     const fileStream = fs.createWriteStream(fileName, { flags: "a" });
 
     req.on("data", (chunk) => {
